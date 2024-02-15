@@ -229,4 +229,10 @@ select {
   padding: 7px;
   cursor: pointer;
 }
+
+@media (min-width: 300px) and (max-width: 700px) {
+  #app {
+    width: 90%;
+  }
+}
 </style>
