@@ -149,8 +149,12 @@ export default {
             );
             break;
           case "PUT":
-            res = await api.put(`/api/products/${id}`, JSON.stringify(body));
-            console.log(res);
+            res = await api.put(`/api/product`, body, {
+              headers: {
+                "Content-Type": "application/json",
+                accept: "application/json",
+              },
+            });
             break;
           default:
             console.error("Invalid request method:", method);
