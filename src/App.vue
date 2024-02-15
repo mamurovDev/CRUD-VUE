@@ -28,17 +28,14 @@
         Product Type:
         <select
           id="productType"
-          v-model="formValues.product_type_id"
           required
           class="rounded border px-3 py-1 ml-2"
-          value="0"
+          v-model="formValues.product_type_id"
         >
-          <option :value="formValues.product_type_id" disabled>
-            Select product id
+          <option disabled selected>Select product type</option>
+          <option v-for="prod in productTypes" :key="prod.id" :value="prod.id">
+            {{ prod.name_uz }}
           </option>
-          <option value="1">yovvoyi hayvonlar</option>
-          <option value="2">daraxtlar</option>
-          <option value="3">o'simliklar</option>
         </select>
       </label>
       <label for="cost" class="mt-3 mb-1 flex items-center justify-between">
@@ -120,6 +117,7 @@ export default {
       isUpdating: false,
       error: "",
       products: [],
+      productTypes: [],
       formValues: {
         name_uz: "",
         product_type_id: null,
@@ -130,6 +128,14 @@ export default {
     };
   },
   methods: {
+    emptyForm() {
+      this.formValues = {
+        name_uz: "",
+        product_type_id: null,
+        cost: null,
+        address: "",
+      };
+    },
     async request(method, body, id) {
       try {
         let res;
@@ -141,6 +147,10 @@ export default {
           case "POST":
             res = await api.post("/api/product/", this.formValues);
             this.products.push(this.formValues);
+            this.emptyForm();
+            setTimeout(() => {
+              this.request("GET", null, null);
+            }, 0);
             break;
           case "DELETE":
             res = await api.delete(`/api/product/${id}`);
@@ -155,19 +165,31 @@ export default {
                 accept: "application/json",
               },
             });
+            this.emptyForm();
             break;
           default:
+            this.error = "Invalid request method: " + method;
             console.error("Invalid request method:", method);
         }
       } catch (error) {
-        this.error = error;
-        console.error("Something went wrong with the request:", error);
+        this.error = "Something went wrong with the request";
+        console.error("Something went wrong with the request: ", error);
+      }
+    },
+    async getProductTypes() {
+      try {
+        const res = await api.get("/api/product/get-product-types");
+        this.productTypes = res.data;
+      } catch (error) {
+        this.error = "Error fetching product types:";
+        console.error("Error fetching product types: ", error);
       }
     },
   },
 
   mounted() {
     this.request("GET");
+    this.getProductTypes();
   },
 };
 </script>
